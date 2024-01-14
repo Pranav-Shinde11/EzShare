@@ -16,6 +16,8 @@
  */
     .filepond--drop-label {
       color: #4c4e53;
+      
+    
     }
 
     .filepond--label-action {
@@ -27,7 +29,11 @@
       border-radius: 2em;
       background-color: #edf0f4;
       height: 1em;
-    }
+      
+  }
+  
+  
+    
 
     .filepond--item-panel {
       background-color: #595e68;
@@ -47,10 +53,29 @@
     body {
       max-width: 28em;
       margin: 0 auto;
-      background-color: #03a9f4;
+      height: 150vh;
+      {% comment %} width:100%; {% endcomment %}
+      background:linear-gradient(45deg,#f18cf5,#a7fac2,#f1f59f,#7cf3f7);
+      background-size:300%,300%;
+      animation: color 25s ease-in-out infinite;
+      {% comment %} max-width: 28em;
+      margin: 0 auto;
+      background-color:#cdfad9; {% endcomment %}
+    
     }
-    .background {
+    @keyframes color{
+      0%{
+        background-position: 0 50%;
+      }
+      50%{
+        background-position: 100% 50%;
+      }
+      100%{
+        background-position: 0 50%;
+      }
+    }
 
+    .background {
   border-radius: 5px;
   display: flex;
   align-items: center;
@@ -75,10 +100,13 @@ body .clipboard:hover {
 body p {
   font-weight: 700;
 }
+#success-message{
+  text-color:#e7a7fc;
+}
   </style>
 </head>
 
-<body>
+<body class="carad mt-5">
   <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
   <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet">
 
@@ -97,6 +125,12 @@ body p {
 
   <input type="file" class="my-pond mt-4" multiple name="filepond" />
 
+  <!-- Add this div to display the success message -->
+<div id="success-message" class="text-center" style="display: none; text-color:#e7a7fc; font-weight: bold;padding-top:15px;padding-bottom:15px;">
+  File uploaded successfully!
+</div>
+
+
   <div class="text-center">
     <button class="btn btn-success" onclick ="upload_file()">Upload File</button>
   </div>
@@ -108,7 +142,10 @@ body p {
         <div class="background">
             <center>
               <button onclick="copyClip()" class="clipboard">Click me to copy current Url</button>
-              <p>Have you already clicked?</p>
+              <div style="padding-top:15px; color: #1f0407">
+                <p style= "font-family: "sans-serif";font-weight: 700; color: #1f0407;">Have you already clicked?</p>
+                </div>
+             
             </center>
             </div>
 
@@ -132,30 +169,31 @@ body p {
      
      var url = null
 
-    function upload_file() {
-        var files = pond.getFiles()
-
-        var formdata = new FormData()
-
-        for (var i = 0; i < files.length; i++) {
-            formdata.append('files', files[i].file)
-        }
-
-        fetch('/handle/', {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': "{{csrf_token}}"
-                },
-                body: formdata
-            }).then(res => res.json())
-            .then(result => {
-                console.log(result)
-            
-                url = `http://127.0.0.1:8000/download/${result.data.folder}`
-            
-            })
-
-         }
+     function upload_file() {
+      var files = pond.getFiles();
+      var formdata = new FormData();
+    
+      for (var i = 0; i < files.length; i++) {
+        formdata.append('files', files[i].file);
+      }
+    
+      fetch('/handle/', {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': "{{csrf_token}}"
+        },
+        body: formdata
+      })
+        .then(res => res.json())
+        .then(result => {
+          console.log(result);
+          url = `http://127.0.0.1:8000/download/${result.data.folder}`;
+    
+          // Show the success message
+          document.getElementById('success-message').style.display = 'block';
+        });
+    }
+    
 
          function copyClip() {
             console.log('dd')
